@@ -1,5 +1,12 @@
 chai_order = dict(type = "Masala chai", size = "Large", sugar = 3)
 
+# #add elements to dictionary
+# chai_order["milk"] = "whole"
+# chai_order["cardamom"] = "crushed"
+
+# #add elements to dictionary using update() method
+# chai_order.update({"milk": "whole", "cardamom": "crushed"})
+
 print(f"chai order: {chai_order}")
 
 chai_recipe = {}

@@ -11,9 +11,9 @@ Break if flavor is "Discontinued"
 flavors = ["Masala Chai", "Ginger Chai", "Out of Stock", "Cardamom Chai", "Discontinued", "Saffron Chai"]
 for flavor in flavors:
     if flavor == "Out of Stock":
-        print(f"Sorry, flavor is currently out of stock. Skipping.")
+        print(f"Sorry, flavor is currently out of stock.")
         continue
     elif flavor == "Discontinued":
-        print(f"Sorry, flavor has been discontinued. Stopping the menu update.")
+        print(f"Sorry, flavor has been discontinued.")
         break
-    print(f"Adding {flavor} to the menu.")
+    print(f"{flavor} is available.")
