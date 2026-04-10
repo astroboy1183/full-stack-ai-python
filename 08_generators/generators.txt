@@ -1,0 +1,6 @@
+Generators:
+
+1. you save memory
+2. you don't want results immediately
+3. lazy evaluation
+

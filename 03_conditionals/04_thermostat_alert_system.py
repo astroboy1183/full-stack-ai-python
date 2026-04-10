@@ -14,7 +14,7 @@ device_status = input("Enter device status (active/off): ").lower()  # convert i
 input_temperature = float(input("Enter current temperature: "))
 units = input("Enter temperature units (C/F): ").upper()  # convert input to uppercase for case-insensitive comparison       
 print(f"Device status: {device_status}")
-print(f"Current temperature: {temperature}°{units}")
+print(f"Current temperature: {input_temperature}°{units}")
 
 temperature = input_temperature
 if units == "F":

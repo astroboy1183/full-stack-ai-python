@@ -1,4 +1,6 @@
-#single return value
+# Return values from functions
+ 
+# single return value
 def make_chai():
     return "Masala Chai"
 chai = make_chai()

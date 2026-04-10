@@ -18,3 +18,4 @@ def chai_counter():
 chai_order = "Tulsi"
 chai_counter()
 print(f"Global: {chai_order}")
+
