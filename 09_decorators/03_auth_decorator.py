@@ -17,3 +17,4 @@ def access_sensitive_data(user):
 # regular_user = {"username": "user", "is_admin": False}
 access_sensitive_data("admin")  # This will work
 access_sensitive_data("user")  # This will print an access denied message
+
