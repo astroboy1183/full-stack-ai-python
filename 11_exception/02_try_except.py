@@ -9,13 +9,8 @@ print(chai_menu["masala"])
 # print(chai_menu["Elaichi"]) #KeyError
 
 #handle KeyError
-# try:
-#     print(chai_menu["Elaichi"])
-# except KeyError:
-#     print("Chai not available")
-
-#use exception e
 try:
     print(chai_menu["Elaichi"])
-except KeyError as e:
-    print(f"Chai not available: {e}")
+except KeyError:
+    print("Chai not available")
+

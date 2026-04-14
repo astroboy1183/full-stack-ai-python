@@ -1,6 +1,3 @@
-from qrcode import make
-
-
 class OutOfIngredientsError(Exception): 
     pass
 

@@ -1,8 +1,5 @@
 #raise multiple different exceptions
 
-from sys import exception
-
-
 def divide(a, b):
     try:
         c = a / b
@@ -32,7 +29,7 @@ def divide(a, b):
         if type(a) != int or type(b) != int:
             raise TypeError("a and b must be integers")
         c = a / b
-    except exception as e:
+    except (ZeroDivisionError, TypeError) as e:
         print(e)
     else:
         print("Result is C:", c)
