@@ -1,0 +1,246 @@
+Pydantic Field Validator Error — Code + Explanation - Error faced in 05_field_validation.py
+
+============================================================
+1) Your Original Code
+============================================================
+
+from multiprocessing import Value
+
+from pydantic import BaseModel, field_validator, model_validator
+
+class User(BaseModel):
+
+    username: str
+
+    @field_validator("username")
+    # def validate_username(cls, value):
+    #     if len(value) < 5:
+    #         raise ValueError("Username must be at least 5 characters long")
+    #     return value
+
+    def validate_username(self):
+        if len(self.username) < 5:
+            raise ValueError("Username must be at least 5 characters long")
+        return self
+
+class SignupData(BaseModel):
+    password: str
+    confirm_password: str
+
+    @model_validator(mode="after")
+    # def check_passwords_match(cls, values):
+    #     if values.password != values.confirm_password:
+    #         raise ValueError("Passwords do not match")
+    #     return values
+
+    def check_passwords_match(self):
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
+
+signup = SignupData(password="secret123", confirm_password="secret123")
+print(signup)
+
+user = User(username="jayanth")
+print(user)
+
+# user1 = User(username="j")
+# print(user1)
+
+user2 = User(username="jayanthappalla")
+print(user2)
+
+user3 = User(username="jayanthappalla")
+print(user3)
+
+
+============================================================
+2) The Error You Got
+============================================================
+
+(.venv) jayanth@jayanth-IdeaPad:~/Desktop/PythonDS/14_pydantic/01_basics$ python 05_field_validation.py 
+
+Traceback (most recent call last):
+  File "/home/jayanth/Desktop/PythonDS/14_pydantic/01_basics/05_field_validation.py", line 5, in <module>
+    class User(BaseModel):
+  File "/home/jayanth/Desktop/PythonDS/14_pydantic/01_basics/05_field_validation.py", line 15, in User
+    def validate_username(self):
+  File "/home/jayanth/Desktop/PythonDS/01_virtual/.venv/lib/python3.10/site-packages/pydantic/functional_validators.py", line 501, in dec
+    raise PydanticUserError(
+pydantic.errors.PydanticUserError: The `@field_validator` decorator cannot be applied to instance methods
+
+For further information visit https://errors.pydantic.dev/2.13/u/validator-instance-method
+
+
+============================================================
+3) What Exactly Caused the Error
+============================================================
+
+The problem is this part:
+
+    @field_validator("username")
+    def validate_username(self):
+        ...
+
+In Pydantic v2, @field_validator is used for validating a single field value.
+It does NOT work with instance methods.
+
+That means:
+- Pydantic is not expecting self here
+- Pydantic expects a class-level validator
+- A field validator should validate the incoming field value, not the whole object
+
+So this is invalid:
+
+    def validate_username(self):
+
+because "self" means:
+- "this is an instance method"
+- "I already have a fully built object"
+
+But field validation happens before or during model construction, not after a normal instance method flow.
+
+
+============================================================
+4) Why model_validator(mode="after") Works with self
+============================================================
+
+This part of your code is valid:
+
+    @model_validator(mode="after")
+    def check_passwords_match(self):
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
+
+Why?
+
+Because:
+- model_validator(mode="after") runs after the model has been created
+- at that point, self is available
+- now Pydantic can safely let you inspect multiple fields on the instance
+
+So:
+
+- @field_validator  -> validate one field -> use cls, value
+- @model_validator(mode="after") -> validate full model -> use self
+
+
+============================================================
+5) Corrected Version of Your Code
+============================================================
+
+from pydantic import BaseModel, field_validator, model_validator
+
+class User(BaseModel):
+    username: str
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value):
+        if len(value) < 5:
+            raise ValueError("Username must be at least 5 characters long")
+        return value
+
+
+class SignupData(BaseModel):
+    password: str
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def check_passwords_match(self):
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
+
+
+signup = SignupData(password="secret123", confirm_password="secret123")
+print(signup)
+
+user = User(username="jayanth")
+print(user)
+
+user2 = User(username="jayanthappalla")
+print(user2)
+
+user3 = User(username="jayanthappalla")
+print(user3)
+
+
+============================================================
+6) Why the Correct Version Works
+============================================================
+
+In the corrected User model:
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value):
+        ...
+
+Here:
+- cls refers to the class
+- value is the username being validated
+- the validator returns the validated value
+
+This matches how field validators are designed.
+
+In the SignupData model:
+
+    @model_validator(mode="after")
+    def check_passwords_match(self):
+        ...
+
+Here:
+- self is the actual model instance
+- both password fields are already available
+- returning self tells Pydantic the model is valid
+
+
+============================================================
+7) Easy Rule to Remember
+============================================================
+
+Use this mental shortcut:
+
+1. If validating one field:
+   use @field_validator
+   signature: (cls, value)
+
+2. If validating the whole model after creation:
+   use @model_validator(mode="after")
+   signature: (self)
+
+So:
+
+- field_validator -> no self
+- model_validator(after) -> self allowed
+
+
+============================================================
+8) Small Cleanup Note
+============================================================
+
+This import is unused in your file:
+
+    from multiprocessing import Value
+
+It can be removed safely.
+
+
+============================================================
+9) Final Summary
+============================================================
+
+Your code failed because you used an instance method with @field_validator.
+
+Wrong:
+    @field_validator("username")
+    def validate_username(self):
+
+Right:
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value):
+
+But your model validator using self is correct because it runs after the model is built.
