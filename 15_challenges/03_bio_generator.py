@@ -32,69 +32,122 @@ Bonus:
 - Let the user pick from 2–3 different layout styles.
 - Ask the user if they want to save the result into a `.txt` file.
 '''
+from datetime import date
 
-import sys
-from datetime import date # Keep this for date.today()
-
-#
 def generate_bio():
-    print("Let's create your stylish social media bio!")
-  
-    name = input("Enter your Name: ").strip()
-    name = " ".join(word.capitalize() for word in name.split()) # Capitalize first letter of every word
+    print("Create your stylish bio:\n")
 
-    profession = input("Enter your Profession: ").strip()
-    profession = " ".join(word.capitalize() for word in profession.split()) 
+    # Inputs
+    name = " ".join(input("Name: ").title().split())
+    profession = " ".join(input("Profession: ").title().split())
+    passion = " ".join(input("One-liner passion or goal: ").title().split())
+    emoji = input("Emoji (optional): ")
+    website = input("Website/handle (optional): ")
 
-    
-    passion = input("Enter your one-liner passion or goal: ").strip()
-
-    emoji = input("Enter your favorite emoji (optional, press Enter to skip): ").strip()
-
-    website = input("Enter your website or handle (optional, e.g., @yourhandle or yourwebsite.com, press Enter to skip): ").strip()
-
+    # Layouts dictionary (cleaner than if-else)
     layouts = {
-        "1": {"name": f"{emoji} {name} | {profession}", "passion": f"💡 {passion}", "website": f"🔗 {website}"},
-        "2": {"name": f"✨ {name} - {profession} {emoji}", "passion": f"🚀 {passion}", "website": f"🌐 {website}"},
-        "3": {"name": f"👋 Hi, I'm {name}!", "passion": f"I'm a {profession} passionate about {passion}.", "website": f"Find me here: {website}"}
+        "1": lambda: f"{emoji} {name} | {profession}\n💡 {passion}" + (f"\n🔗 {website}" if website else ""),
+        "2": lambda: f"✨ {name} - {profession} {emoji}\n🚀 {passion}" + (f"\n🌐 {website}" if website else ""),
+        "3": lambda: f"{emoji*5}\n👋 Hi, I'm {name}!\n{profession} | {passion}\n{emoji*5}" + (f"\n🔗 {website}" if website else "")
     }
 
-    print("\nChoose a bio layout style:")
-    for key, val in layouts.items():
-        print(f"  [{key}]")
-        print(f"    {val['name']}")
-        print(f"    {val['passion']}")
-        if val['website']: # Only print website line if it's provided
-            print(f"    {val['website']}")
-        print("-" * 20)
+    # Choose layout
+    choice = input("\nChoose layout (1.Simple Lines\n/2.Vertical Flair\n/3.Emoji Sandwich\n): ")
+    final_bio = layouts.get(choice, layouts["1"])()
 
-    chosen_layout_key = input("Enter the number of your preferred layout style (1, 2, or 3): ").strip()
-    chosen_layout = layouts.get(chosen_layout_key, layouts["1"]) # Default to layout 1 if invalid key is entered
-
-    bio_lines = [chosen_layout["name"], chosen_layout["passion"]]
-    if chosen_layout["website"]:
-        bio_lines.append(chosen_layout["website"])
-    final_bio = "\n".join(bio_lines)
-
-    print("\n" + "*" * 50)
-    print("Your Generated Bio:")
+    print("\nGenerated Bio:\n")
     print(final_bio)
-    print("*" * 50)
 
-    # Ask to save to file
-    save_choice = input("\nDo you want to save this bio to a text file? (yes/no): ").strip().lower()
+    save = input("\nSave to file? (y/yes/n/no): ").lower().strip()
 
-    if save_choice == 'yes':
-        
-        filename = input("Enter filename (e.g., my_bio.txt): ").strip()
-        try:
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write("Your Generated Bio:\n")
-                f.write(final_bio)
-                f.write(f"\n\nGenerated on: {date.today().strftime('%Y-%m-%d')}")
-            print(f"Bio successfully saved to {filename}")
-        except IOError as e:
-            print(f"Error saving file: {e}")
+    if save in ["y", "yes"]:
+        filename = input("Filename: ")
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(final_bio + f"\n\nGenerated on: {date.today()}")
+        print("Saved successfully!")
 
 if __name__ == "__main__":
     generate_bio()
+
+
+#old code, little long.
+
+# from datetime import date
+
+
+# def generate_bio():
+#     print("Let's create your stylish social media bio!")
+
+#     # Inputs
+#     name = input("Enter your Name: ").strip()
+#     name = " ".join(word.capitalize() for word in name.split())
+
+#     profession = input("Enter your Profession: ").strip()
+#     profession = " ".join(word.capitalize() for word in profession.split())
+
+#     passion = input("Enter your one-liner passion or goal: ").strip()
+
+#     emoji = input("Enter your favorite emoji (optional, press Enter to skip): ").strip()
+
+#     website = input(
+#         "Enter your website or handle (optional, press Enter to skip): "
+#     ).strip()
+
+#     # Layout selection
+#     print("\nChoose a bio layout style:")
+#     print("1. Simple Lines")
+#     print("2. Vertical Flair")
+#     print("3. Emoji Sandwich")
+
+#     layout_choice = input("Enter the number of your choice: ").strip()
+
+#     # Generate bio (store in variable for reuse)
+#     if layout_choice == '1':
+#         final_bio = f"{emoji} {name} | {profession}\n💡 {passion}"
+#         if website:
+#             final_bio += f"\n🔗 {website}"
+#         print(final_bio)
+
+#     elif layout_choice == '2':
+#         final_bio = f"✨ {name} - {profession} {emoji}\n🚀 {passion}"
+#         if website:
+#             final_bio += f"\n🌐 {website}"
+#         print(final_bio)
+
+#     elif layout_choice == '3':
+#         final_bio = f"{emoji*6}\n"+f"👋 Hi, I'm {name}!\nI'm a {profession} passionate about {passion}."+f"\n{emoji*6}"
+#         if website:
+#             final_bio += f"\nFind me here: {website}"
+#         print(final_bio)
+
+#     else:
+#         print("Invalid choice. Defaulting to Simple Lines.")
+#         final_bio = f"{emoji} {name} | {profession}\n💡 {passion}"
+#         if website:
+#             final_bio += f"\n🔗 {website}"
+#         print(final_bio)
+
+#     # Print output
+#     print("\nGenerated Bio:")
+#     print(final_bio)
+
+#     # Ask to save
+#     save_choice = input("\nDo you want to save this bio to a text file? (yes/no): ").strip().lower()
+
+#     if save_choice == 'yes':
+#         filename = input("Enter filename (e.g., my_bio.txt): ").strip()
+
+#         try:
+#             with open(filename, "w", encoding="utf-8") as f:
+#                 f.write("Your Generated Bio:\n\n")
+#                 f.write(final_bio)
+#                 f.write(f"\n\nGenerated on: {date.today().strftime('%Y-%m-%d')}")
+
+#             print(f"Bio successfully saved to {filename}")
+
+#         except IOError as e:
+#             print(f"Error saving file: {e}")
+
+
+# if __name__ == "__main__":
+#     generate_bio()
